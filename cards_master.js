@@ -28,7 +28,6 @@ let carrots, carrotImages=[]; // Start page animation
 let bunny, winImage, loseImage; // Win/Lose page image
 let sounds, soundBtn, isMute, soundOnImg, soundOffImg; // Sound variables
 let bg; // Background image
-let dp, isBonus;
 
 // Class Card defines coordinate, size, image, 
 // flip state, mouse hover check and display function
@@ -66,12 +65,12 @@ class Card {
 // Preload images and sound files into memory
 function preload() {
   // Load all card images - total 26
-  for (let i = 0; i < 32; i++) {
+  for (let i = 0; i < 26; i++) {
     cardImages.push(loadImage('image/bunny'+i+'.png')); 
   }
 
   // Load all bonus images - total 4
-  for (let b = 0; b < 8; b++) {
+  for (let b = 0; b < 4; b++) {
     bonusImages.push(loadImage('image/bonus'+b+'.png')); 
   }
 
@@ -165,8 +164,6 @@ function setup() {
   gameStart = false;
   allowFlip = false;
   score = 0;
-  dp = false;
-  isBonus = false;
   
   endMessage = new Sprite(width*0.5, height*0.3, 1, 'n');
   endMessage.color = 'lightyellow';
@@ -232,7 +229,7 @@ function draw() {
     carrots.visible = false;
     levelBtn.visible = false;
     levelBtn.collider = 'n';
-    if (level.l < 4){
+    if (level.l < 3){
       level.l++;
     }
     createLevel(level);
@@ -283,13 +280,7 @@ function mousePressed() {
             score += 100;
             playSound(9);
             console.log('match sound 9');
-
-            isBonus = checkBonus(flipCards[1].img);
-
-            if ((dp == true)&&(!isBonus)){
-              score += 100;
-              dp = false;
-            }
+            checkBonus(flipCards[1].img);
             flipCards = [];
           } else {
             // Not a match, flip back after a delay of 0.5 second
@@ -317,10 +308,6 @@ function keyPressed(k){
   if (k.code === 'KeyP'){
     playSound(10);
     console.log('p key sound 10');
-    showLevel();
-  }
-  if (k.code === 'KeyL'){
-    level.l = 4;
     showLevel();
   }
 }
@@ -440,31 +427,31 @@ function topBar(){
 function createLevel(level){
   cards = [];
   levelImages = [];
-  
+
   // each level contains row and column size
   // which adjust how many card images involved per level
   if (level.l == 1){
     level.row = 4;
     level.col = 5;
     levelTime = 60;
+    levelImages.push(bonusImages[0]);
+    levelImages.push(bonusImages[0]);
   } else if (level.l == 2){
     level.row = 5;
     level.col = 8;
     levelTime = 180;
+    levelImages.push(bonusImages[0]);
+    levelImages.push(bonusImages[1]);
+    levelImages.push(bonusImages[0]);
+    levelImages.push(bonusImages[1]);
   } else if (level.l == 3){
     level.row = 6;
     level.col = 10;
     levelTime = 300;
-  } else if (level.l == 4){
-    level.row = 8;
-    level.col = 10;
-    levelTime = 360;
-  }
-
-  let bonusMax = pow(2, level.l - 1);
-
-  for (let j = 0; j < 2; j++){
-    for (let i = 0; i < bonusMax; i++){
+    for (let i = 0; i < bonusImages.length; i++){
+      levelImages.push(bonusImages[i]);
+    }
+    for (let i = 0; i < bonusImages.length; i++){
       levelImages.push(bonusImages[i]);
     }
   }
@@ -501,52 +488,12 @@ function createLevel(level){
 function checkBonus(img){
     if (img === bonusImages[0]){
         levelTime += 10;
-        return true;
     } else if (img === bonusImages[1]){
-        
-        if (dp == true){
-          score += 200;
-          dp = false;
-        } else {
-          score += 100;
-        }
-        return true;
+        score += 100;
     } else if (img === bonusImages[2]){
-        
         levelTime += 30;
-        return true;
     } else if (img === bonusImages[3]){
-        
-        if (dp == true){
-          score += 1000;
-          dp = false;
-        } else {
-          score += 500;
-        }
-        return true;
-    } else if (img === bonusImages[4]){
-        
-        if (dp == true){
-          score += 2000;
-          dp = false;
-        } else {
-          score += 1000;
-        }
-        return true;
-    } else if (img === bonusImages[5]){
-        
-        levelTime += 60;
-        return true;
-    } else if (img === bonusImages[6]){
-        
-        score += 5000;
-        return true;
-    } else if (img === bonusImages[7]){
-        
-        dp = true;
-        return true;
-    } else {
-        return false;
+        score += 500;
     }
 }
 
@@ -590,7 +537,7 @@ function resetGame(){
 // Window resized function will run when "reload" after a browser window resize
 function windowResized(){
   // Canvas is set to 95% width and height - match setup scale
-  resizeCanvas(windowWidth, windowHeight);
+  resizeCanvas(windowWidth*0.95, windowHeight*0.95);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
