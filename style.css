@@ -1,8 +1,11 @@
-canvas {
-    border: 5px solid skyblue;
-    border-radius: 10px;
+html, body{
+    margin: auto;
+    padding: 0;
+    background-image: url('image/background.jpg');
+    background-size: 100vw 100vh;
 }
 
-/* .sb{
-    transform: scale(3);
-} */
+canvas {
+    margin: auto;
+    display: block;
+}

@@ -29,6 +29,7 @@ let bunny, winImage, loseImage; // Win/Lose page image
 let sounds, soundBtn, isMute, soundOnImg, soundOffImg; // Sound variables
 let bg; // Background image
 let dp, isBonus;
+let bonusFlip, bonusOpen=[];
 
 // Class Card defines coordinate, size, image, 
 // flip state, mouse hover check and display function
@@ -167,6 +168,7 @@ function setup() {
   score = 0;
   dp = false;
   isBonus = false;
+  bonusFlip = 0;
   
   endMessage = new Sprite(width*0.5, height*0.3, 1, 'n');
   endMessage.color = 'lightyellow';
@@ -275,7 +277,14 @@ function mousePressed() {
         playSound(0);
         console.log('flip 1st card sound 0');
         cardRemain--;
-        flipCards.push(card);
+        console.log('bonusFlip',bonusFlip);
+          if (bonusFlip > 0){
+            matchOBC(card);
+            console.log('bonusFlip > 0');
+          } else {
+            console.log('normal flip');
+            flipCards.push(card);
+          }
         if (flipCards.length === 2) {
           if (flipCards[0].img === flipCards[1].img) {
             // Match section
@@ -286,27 +295,28 @@ function mousePressed() {
 
             isBonus = checkBonus(flipCards[1].img);
 
-            if ((dp == true)&&(!isBonus)){
+            if ((dp == true)&&(!isBonus)) {
               score += 100;
               dp = false;
             }
             flipCards = [];
-          } else {
+          }
+          else {
             // Not a match, flip back after a delay of 0.5 second
             // console.log('not match');
-            allowFlip = false;
-            setTimeout(() => {
-              flipCards[0].flip();
-              flipCards[1].flip();
-              cardRemain += 2;
-              flipCards = [];
-              if (score > 0){
-                score -= 10;
-              }
-              allowFlip = true;
-            }, 500);
+              allowFlip = false;
+              setTimeout(() => {
+                flipCards[0].flip();
+                flipCards[1].flip();
+                cardRemain += 2;
+                flipCards = [];
+                if (score > 0){
+                  score -= 10;
+                }
+                allowFlip = true;
+              }, 500);
           }
-        }
+        } 
       }
     }
   }
@@ -454,11 +464,11 @@ function createLevel(level){
   } else if (level.l == 3){
     level.row = 6;
     level.col = 10;
-    levelTime = 300;
+    levelTime = 250;
   } else if (level.l == 4){
     level.row = 8;
     level.col = 10;
-    levelTime = 360;
+    levelTime = 300;
   }
 
   let bonusMax = pow(2, level.l - 1);
@@ -538,8 +548,8 @@ function checkBonus(img){
         levelTime += 60;
         return true;
     } else if (img === bonusImages[6]){
-        
-        score += 5000;
+        bonusFlip = 5;
+        openBonusCards(bonusFlip);
         return true;
     } else if (img === bonusImages[7]){
         
@@ -550,12 +560,74 @@ function checkBonus(img){
     }
 }
 
+function openBonusCards(count){
+  let openCard = random(cards);
+  for (let i = 0; i < count; i++){
+    if (openCard.flipped){
+      openCard = random(cards);
+      count++;
+    } else {
+      openCard.flip();
+      bonusOpen.push(openCard);
+    }
+  }
+  cardRemain -= bonusOpen.length;
+  for (let j = 0; j < bonusOpen.length; j++){
+    strokeWeight(5);
+    stroke('gold');
+    rect(bonusOpen[j].x, bonusOpen[j].y, bonusOpen[j].w, bonusOpen[j].h);
+  }
+  noStroke();
+  // let matchIndex = [];
+  // for (let j = 0; j < bonusOpen.length; j++){
+  //   for (let k = 0; k < bonusOpen.length; k++){
+  //     console.log('normal j,k',j,k);
+  //     if (j != k){
+  //       if(bonusOpen[j].img === bonusOpen[k].img){
+  //         matchIndex.push(j);
+  //         matchIndex.push(k);
+  //         bonusFlip-=2;
+  //         console.log('match j,k',j,k);
+  //         isBonus = checkBonus(bonusOpen[k].img);
+  //         if (!isBonus){
+  //           score += 100;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   bonusOpen[j].flip();
+  // }
+  // if (matchIndex.length > 0){
+  //   for (let m = 0; m < matchIndex.length; m++){
+  //     bonusOpen.splice(matchIndex[m],1);
+  //     console.log('match m',matchIndex[m]);
+  //   }
+  // }
+}
+
+// check Open Bonus Cards if match flipped card
+function matchOBC(fCard){
+  if (bonusOpen.length > 0){
+    for (let i = 0; i < bonusOpen.length; i++){
+      if (fCard.img === bonusOpen[i].img){
+        isBonus = checkBonus(bonusOpen[i].img);
+        if (!isBonus){
+          score += 100;
+        }
+        bonusOpen.splice(i,1);
+        bonusFlip--;
+        return true;
+      }
+    }
+  }
+}
+
 // Win game screen
 function winGame(){
   bunny.img = winImage;
   bunny.visible = true;
   balls.visible = true;
-  if (level.l < 3){
+  if (level.l < 4){
     levelBtn.text = 'Next\nLevel '+(level.l+1);
   } else {
     levelBtn.text = 'Replay\nLevel '+(level.l);
