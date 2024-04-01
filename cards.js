@@ -16,10 +16,10 @@ let backImage; // Back of card image
 let cardSize; // Card size based on level and screen size
 let space; // Spacer between cards
 let level; // Level grid
-let gameTime, startTime, levelTime, lTime; // Timing variables
+let gameTime, startTime, levelTime, lTime, winTime; // Timing variables
 let startBtn, levelBtn; // Start button
 let gameStart; // Game start state = true or false
-let score; // Keep track of score
+let score, tScore; // Keep track of score
 let cardRemain; // Keep track of remaining cards
 let balls; // End game animation
 let endMessage; // Display end game message
@@ -131,7 +131,7 @@ function setup() {
   space = 20;
 
   // no Stroke for cards
-  noStroke();
+  strokeWeight(0);
 
   balls = new Group();
   balls.x = width*0.54; // balls animation test: ball.x = () => random(width*0.2, width*0.8);
@@ -268,7 +268,7 @@ function draw() {
       let ball = new balls.Sprite();
       ball.direction =  random(0, 360);
       ball.speed =  random(1, 5); // work at local p5 lib
-      ball.color = color(random(255),random(255),random(255),random(60,100));
+      ball.color = color(random(255),random(255),random(255),random(80,100));
     }
   } else {
     balls.removeAll();
@@ -298,14 +298,15 @@ function mousePressed() {
         playSound(0);
         console.log('flip 1st card sound 0');
         cardRemain--;
-        console.log('bonusFlip',bonusFlip);
+
           if (bonusFlip > 0){
-            if (matchOBC(card)){;
-            console.log('bonusFlip > 0');
+            if (matchOBC(card)){
+              console.log('check OBC = true');
           } else {
-            console.log('normal flip');
+              console.log('check OBC = false');
             flipCards.push(card);
           }} else {
+            console.log('bonusFlip == 0');
             flipCards.push(card);
           }
         if (flipCards.length === 2) {
@@ -540,61 +541,63 @@ function createLevel(level){
 function checkBonus(c1,c2){
     if (c1.img === bonusImages[0]){
         levelTime += 10;
-        matchAni(c1,c2,'+10s');
+        matchAni(c1, c2, '+10s');
         return true;
+
     } else if (c1.img === bonusImages[1]){
-        
         if (dp == true){
           score += 200;
           dp = false;
           matchAni(c1,c2,'+300');
         } else {
           score += 100;
-          matchAni(c1,c2,'+200');
+          matchAni(c1, c2, '+200');
         }
         return true;
+
     } else if (c1.img === bonusImages[2]){
-        
         levelTime += 30;
-        matchAni(c1,c2,'+30s');
+        matchAni(c1, c2, '+30s');
         return true;
+
     } else if (c1.img === bonusImages[3]){
-        
         if (dp == true){
           score += 1000;
-          matchAni(c1,c2,'+1100');
+          matchAni(c1, c2, '+1100');
           dp = false;
         } else {
           score += 500;
-          matchAni(c1,c2,'+600');
+          matchAni(c1, c2, '+600');
         }
         return true;
+
     } else if (c1.img === bonusImages[4]){
-        
         if (dp == true){
           score += 2000;
-          matchAni(c1,c2,'+2100');
+          matchAni(c1, c2, '+2100');
           dp = false;
         } else {
           score += 1000;
-          matchAni(c1,c2,'+1100');
+          matchAni(c1, c2, '+1100');
         }
         return true;
+
     } else if (c1.img === bonusImages[5]){
-        
         levelTime += 60;
-        matchAni(c1,c2,'+60s');
+        matchAni(c1, c2, '+60s');
         return true;
+
     } else if (c1.img === bonusImages[6]){
         bonusFlip = 5;
-        matchAni(c1,c2,'+5 open');
+        matchAni(c1, c2, '+5 open');
         openBonusCards(bonusFlip);
         return true;
+
     } else if (c1.img === bonusImages[7]){
-        
         dp = true;
-        matchAni(c1,c2,'2x activated');
+        matchAni(c1, c2, '2x Points');
         return true;
+
     } else {
         return false;
     }
@@ -637,7 +640,7 @@ function matchOBC(fCard){
 }
 
 function matchAni(c1,c2,msg){
-  noStroke();
+  strokeWeight(0);
   let w1 = new winPair.Sprite(c1.w/2+c1.x, c1.y, 1, 'n');
   let w2 = new winPair.Sprite(c2.w/2+c2.x, c2.y, 1, 'n');
   w1.text = w2.text = msg;
@@ -659,14 +662,19 @@ function winGame(){
   levelBtn.collider = 's';
   startBtn.visible = false;
   startBtn.collider = 'n';
-  noStroke();
+  strokeWeight(0);
   endMessage.visible = true;
-  endMessage.text = 'You Win!\n\nYour Score : '+score;
+  winTime = gameTime;
+  tScore = winTime * 10 + score;
+  endMessage.text = `You Win!
+                    \n\nTime Completed : ${winTime} s 
+                    \nYour Score : ${score}
+                    \nTotal Score : ${tScore}`;
 }
 
 // Lose game screen
 function loseGame(){
-  noStroke();
+  strokeWeight(0);
   bunny.img = loseImage;
   bunny.visible = true;
   endMessage.visible = true;
@@ -680,8 +688,11 @@ function loseGame(){
 // Reset game variables
 function resetGame(){
   score = 0;
+  tScore = 0;
   allowFlip = false;
   flipCards = [];
+  bonusFlip = 0;
+  bonusOpen = [];
 }
 
 // Window resized function will run when "reload" after a browser window resize
