@@ -51,7 +51,7 @@ class Card {
       strokeWeight(10);
       stroke('gold');
     } else {
-      noStroke();
+      strokeWeight(0); 
     }
     rect(this.x, this.y, this.w, this.h, 5);
     if (this.flipped) {
@@ -192,8 +192,8 @@ function setup() {
   winPair = new Group();
   winPair.vel.y = -1;
   winPair.amount = 2;
-  winPair.textSize = 28;
-  winPair.textColor = 'green';
+  winPair.textSize = 38;
+  winPair.textColor = 'lime';
   winPair.visible = false;
   winPair.life = 60;
 }
