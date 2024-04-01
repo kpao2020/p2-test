@@ -358,9 +358,11 @@ function keyPressed(k){
     playSound(10);
     console.log('p key sound 10');
     showLevel();
-  }
-  if (k.code === 'KeyL'){
-    level.l = 4;
+  } else if (k.code === 'Digit4'){
+    level.l = 3;
+    showLevel();
+  } else if (k.code === 'Digit3'){
+    level.l = 2;
     showLevel();
   }
 }
@@ -374,7 +376,7 @@ function showLevel(){
       allowFlip = false;
       levelBtn.visible = true;
       levelBtn.collider = 's';
-      levelBtn.text = 'Secret Skip'
+      levelBtn.text = `Secret skip \nto level ${level.l+1}`;
       startBtn.visible = false;
       startBtn.collider = 'n';
       carrots.visible = false;
