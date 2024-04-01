@@ -28,8 +28,9 @@ let carrots, carrotImages=[]; // Start page animation
 let bunny, winImage, loseImage; // Win/Lose page image
 let sounds, soundBtn, isMute, soundOnImg, soundOffImg; // Sound variables
 let bg; // Background image
-let dp, isBonus;
-let bonusFlip, bonusOpen=[];
+let dp, isBonus; // Double Point Bonus state and check
+let bonusFlip, bonusOpen=[]; // Bonus Open Cards count and array
+let winPair; // Win match cards animation
 
 // Class Card defines coordinate, size, image, 
 // flip state, mouse hover check and display function
@@ -41,11 +42,18 @@ class Card {
     this.h = size.h;
     this.img = img;
     this.flipped = false; // false = face down
+    this.bonus = false;
   }
 
   // show card image
   display() {
-    rect(this.x, this.y, this.w, this.h);
+    if (this.bonus){
+      strokeWeight(10);
+      stroke('gold');
+    } else {
+      noStroke();
+    }
+    rect(this.x, this.y, this.w, this.h, 5);
     if (this.flipped) {
       image(this.img, this.x, this.y, this.w, this.h);
     } else {
@@ -61,6 +69,11 @@ class Card {
   // flip state
   flip() {
     this.flipped = !this.flipped;
+  }
+
+  // Bonus state
+  setBonus() {
+    this.bonus = !this.bonus;
   }
 }
 
@@ -175,6 +188,14 @@ function setup() {
   endMessage.textSize = 50;
   endMessage.textColor = 'red';
   endMessage.visible = false;
+
+  winPair = new Group();
+  winPair.vel.y = -1;
+  winPair.amount = 2;
+  winPair.textSize = 28;
+  winPair.textColor = 'green';
+  winPair.visible = false;
+  winPair.life = 60;
 }
 
 // Draw function calls following functions
@@ -279,25 +300,33 @@ function mousePressed() {
         cardRemain--;
         console.log('bonusFlip',bonusFlip);
           if (bonusFlip > 0){
-            matchOBC(card);
+            if (matchOBC(card)){;
             console.log('bonusFlip > 0');
           } else {
             console.log('normal flip');
+            flipCards.push(card);
+          }} else {
             flipCards.push(card);
           }
         if (flipCards.length === 2) {
           if (flipCards[0].img === flipCards[1].img) {
             // Match section
             // console.log('match');
+            
             score += 100;
             playSound(9);
             console.log('match sound 9');
 
-            isBonus = checkBonus(flipCards[1].img);
+            isBonus = checkBonus(flipCards[0],flipCards[1]);
 
-            if ((dp == true)&&(!isBonus)) {
-              score += 100;
-              dp = false;
+            if (!isBonus){
+              if (dp == true) {
+                score += 100;
+                dp = false;
+                matchAni(flipCards[0],flipCards[1],'+200');
+              } else {
+                matchAni(flipCards[0],flipCards[1],'+100');
+              }
             }
             flipCards = [];
           }
@@ -508,52 +537,63 @@ function createLevel(level){
 }
 
 // Check if card is a bonus card and update bonus appropriately
-function checkBonus(img){
-    if (img === bonusImages[0]){
+function checkBonus(c1,c2){
+    if (c1.img === bonusImages[0]){
         levelTime += 10;
+        matchAni(c1,c2,'+10s');
         return true;
-    } else if (img === bonusImages[1]){
+    } else if (c1.img === bonusImages[1]){
         
         if (dp == true){
           score += 200;
           dp = false;
+          matchAni(c1,c2,'+300');
         } else {
           score += 100;
+          matchAni(c1,c2,'+200');
         }
         return true;
-    } else if (img === bonusImages[2]){
+    } else if (c1.img === bonusImages[2]){
         
         levelTime += 30;
+        matchAni(c1,c2,'+30s');
         return true;
-    } else if (img === bonusImages[3]){
+    } else if (c1.img === bonusImages[3]){
         
         if (dp == true){
           score += 1000;
+          matchAni(c1,c2,'+1100');
           dp = false;
         } else {
           score += 500;
+          matchAni(c1,c2,'+600');
         }
         return true;
-    } else if (img === bonusImages[4]){
+    } else if (c1.img === bonusImages[4]){
         
         if (dp == true){
           score += 2000;
+          matchAni(c1,c2,'+2100');
           dp = false;
         } else {
           score += 1000;
+          matchAni(c1,c2,'+1100');
         }
         return true;
-    } else if (img === bonusImages[5]){
+    } else if (c1.img === bonusImages[5]){
         
         levelTime += 60;
+        matchAni(c1,c2,'+60s');
         return true;
-    } else if (img === bonusImages[6]){
+    } else if (c1.img === bonusImages[6]){
         bonusFlip = 5;
+        matchAni(c1,c2,'+5 open');
         openBonusCards(bonusFlip);
         return true;
-    } else if (img === bonusImages[7]){
+    } else if (c1.img === bonusImages[7]){
         
         dp = true;
+        matchAni(c1,c2,'2x activated');
         return true;
     } else {
         return false;
@@ -561,48 +601,20 @@ function checkBonus(img){
 }
 
 function openBonusCards(count){
-  let openCard = random(cards);
   for (let i = 0; i < count; i++){
+    let openCard = random(cards);
     if (openCard.flipped){
-      openCard = random(cards);
+      // openCard = random(cards);
+      console.log('random openCard already flipped',openCard);
       count++;
     } else {
       openCard.flip();
+      openCard.setBonus();
       bonusOpen.push(openCard);
+      console.log('openCard not flipped',openCard,'bO length',bonusOpen.length);
     }
   }
   cardRemain -= bonusOpen.length;
-  for (let j = 0; j < bonusOpen.length; j++){
-    strokeWeight(5);
-    stroke('gold');
-    rect(bonusOpen[j].x, bonusOpen[j].y, bonusOpen[j].w, bonusOpen[j].h);
-  }
-  noStroke();
-  // let matchIndex = [];
-  // for (let j = 0; j < bonusOpen.length; j++){
-  //   for (let k = 0; k < bonusOpen.length; k++){
-  //     console.log('normal j,k',j,k);
-  //     if (j != k){
-  //       if(bonusOpen[j].img === bonusOpen[k].img){
-  //         matchIndex.push(j);
-  //         matchIndex.push(k);
-  //         bonusFlip-=2;
-  //         console.log('match j,k',j,k);
-  //         isBonus = checkBonus(bonusOpen[k].img);
-  //         if (!isBonus){
-  //           score += 100;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   bonusOpen[j].flip();
-  // }
-  // if (matchIndex.length > 0){
-  //   for (let m = 0; m < matchIndex.length; m++){
-  //     bonusOpen.splice(matchIndex[m],1);
-  //     console.log('match m',matchIndex[m]);
-  //   }
-  // }
 }
 
 // check Open Bonus Cards if match flipped card
@@ -610,9 +622,11 @@ function matchOBC(fCard){
   if (bonusOpen.length > 0){
     for (let i = 0; i < bonusOpen.length; i++){
       if (fCard.img === bonusOpen[i].img){
-        isBonus = checkBonus(bonusOpen[i].img);
+        bonusOpen[i].setBonus();
+        isBonus = checkBonus(fCard, bonusOpen[i]);
         if (!isBonus){
           score += 100;
+          matchAni(fCard,bonusOpen[i],'+100');
         }
         bonusOpen.splice(i,1);
         bonusFlip--;
@@ -622,8 +636,17 @@ function matchOBC(fCard){
   }
 }
 
+function matchAni(c1,c2,msg){
+  noStroke();
+  let w1 = new winPair.Sprite(c1.w/2+c1.x, c1.y, 1, 'n');
+  let w2 = new winPair.Sprite(c2.w/2+c2.x, c2.y, 1, 'n');
+  w1.text = w2.text = msg;
+  winPair.visible = true;
+}
+
 // Win game screen
 function winGame(){
+  
   bunny.img = winImage;
   bunny.visible = true;
   balls.visible = true;
@@ -636,12 +659,14 @@ function winGame(){
   levelBtn.collider = 's';
   startBtn.visible = false;
   startBtn.collider = 'n';
+  noStroke();
   endMessage.visible = true;
   endMessage.text = 'You Win!\n\nYour Score : '+score;
 }
 
 // Lose game screen
 function loseGame(){
+  noStroke();
   bunny.img = loseImage;
   bunny.visible = true;
   endMessage.visible = true;
