@@ -1,7 +1,8 @@
 // Team : Ken Pao, Yuying Huang
 // Class: ART 259
 // Assignment: Project 2
-// Title: Bunny Cards
+// Title: Bunny Cards 
+// Version: 5.0
 // Game link 1: https://kpao2020.github.io/art259-p2/
 // Game link 2: https://bunny-cards.glitch.me
 // Reference: listed at the end of this file
@@ -79,13 +80,13 @@ class Card {
 
 // Preload images and sound files into memory
 function preload() {
-  // Load all card images - total 26
-  for (let i = 0; i < 32; i++) {
+  // Load all card images - total 40
+  for (let i = 0; i < 40; i++) {
     cardImages.push(loadImage('image/bunny'+i+'.png')); 
   }
 
-  // Load all bonus images - total 4
-  for (let b = 0; b < 8; b++) {
+  // Load all bonus images - total 10
+  for (let b = 0; b < 10; b++) {
     bonusImages.push(loadImage('image/bonus'+b+'.png')); 
   }
 
@@ -255,7 +256,7 @@ function draw() {
     carrots.visible = false;
     levelBtn.visible = false;
     levelBtn.collider = 'n';
-    if (level.l < 4){
+    if (level.l < 5){
       level.l++;
     }
     createLevel(level);
@@ -357,6 +358,9 @@ function keyPressed(k){
   if (k.code === 'KeyP'){
     playSound(10);
     console.log('p key sound 10');
+    showLevel();
+  } else if (k.code === 'Digit5'){
+    level.l = 4;
     showLevel();
   } else if (k.code === 'Digit4'){
     level.l = 3;
@@ -501,10 +505,16 @@ function createLevel(level){
     level.row = 8;
     level.col = 10;
     levelTime = 300;
+  } else if (level.l == 5){
+    level.row = 10;
+    level.col = 10;
+    levelTime = 300;
   }
 
-  let bonusMax = pow(2, level.l - 1);
+  let bonusMax = 2*level.l;
 
+  // j = load bonus image twice (pair match)
+  // i = load each bonus image per level 
   for (let j = 0; j < 2; j++){
     for (let i = 0; i < bonusMax; i++){
       levelImages.push(bonusImages[i]);
@@ -522,7 +532,7 @@ function createLevel(level){
   
   shuffle(cardImages, true);
   cardRemain = level.row * level.col;
-  let k = cardRemain - pow(2, level.l); // 2^level.l = bonus cards
+  let k = cardRemain - (2*bonusMax); // 2*bonusMax = bonus cards pairs
   for (let x = 0; x < k; x++){
     levelImages.push(cardImages[x % (k/2)]);
   }
@@ -600,6 +610,22 @@ function checkBonus(c1,c2){
         matchAni(c1, c2, '2x Points');
         return true;
 
+    } else if (c1.img === bonusImages[8]){
+        if (dp == true){
+          score += 4000;
+          matchAni(c1, c2, '+4100');
+          dp = false;
+        } else {
+          score += 2000;
+          matchAni(c1, c2, '+2100');
+        }
+        return true;
+
+    } else if (c1.img === bonusImages[9]){
+        levelTime += 90;
+        matchAni(c1, c2, '+90s');
+        return true;
+
     } else {
         return false;
     }
@@ -655,7 +681,7 @@ function winGame(){
   bunny.img = winImage;
   bunny.visible = true;
   balls.visible = true;
-  if (level.l < 4){
+  if (level.l < 5){
     levelBtn.text = 'Next\nLevel '+(level.l+1);
   } else {
     levelBtn.text = 'Replay\nLevel '+(level.l);
