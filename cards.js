@@ -479,6 +479,14 @@ function topBar(){
   }
 
   // Mute control
+  // if (soundBtn.mouse.hovering()){
+  //   soundBtn.color = 'yellow';
+  //   cursor(HAND);
+  // } else {
+  //   soundBtn.color = 'lime';
+  //   cursor(ARROW);
+  // }
+
   if (soundBtn.mouse.presses()) {
     isMute = !isMute;
     console.log('isMute',isMute);
@@ -516,7 +524,7 @@ function createLevel(level){
   } else if (level.l == 5){
     level.row = 10;
     level.col = 10;
-    levelTime = 300;
+    levelTime = 310;
   }
 
   let bonusMax = 2*level.l;
