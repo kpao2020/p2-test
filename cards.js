@@ -616,9 +616,8 @@ function checkBonus(c1,c2){
         return true;
 
     } else if (c1.img === bonusImages[6]){
-        bonusFlip = 5;
-        matchAni(c1, c2, '+5 open');
-        openBonusCards(bonusFlip);
+        levelTime += 90;
+        matchAni(c1, c2, '+90s');
         return true;
 
     } else if (c1.img === bonusImages[7]){
@@ -638,8 +637,9 @@ function checkBonus(c1,c2){
         return true;
 
     } else if (c1.img === bonusImages[9]){
-        levelTime += 90;
-        matchAni(c1, c2, '+90s');
+        bonusFlip = 5;
+        matchAni(c1, c2, '+5 open');
+        openBonusCards(bonusFlip);
         return true;
 
     } else {
@@ -651,9 +651,8 @@ function openBonusCards(count){
   for (let i = 0; i < count; i++){
     let openCard = random(cards);
     if (openCard.flipped){
-      // openCard = random(cards);
       console.log('random openCard already flipped',openCard);
-      count++;
+      count++; // need to random again to open an unflipped card.
     } else {
       openCard.flip();
       openCard.setBonus();
@@ -688,7 +687,7 @@ function matchAni(c1,c2,msg){
   let w1 = new winPair.Sprite(c1.w/2+c1.x, c1.y, 1, 'n');
   let w2 = new winPair.Sprite(c2.w/2+c2.x, c2.y, 1, 'n');
   w1.text = w2.text = msg;
-  winPair.visible = true;
+  winPair.visible = true; // winPair life = 2 sec
 }
 
 // Win game screen
