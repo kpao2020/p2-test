@@ -191,7 +191,7 @@ function setup() {
   endMessage = new Sprite(width*0.5, height*0.35, 1, 'n');
   endMessage.color = 'lightyellow';
   endMessage.textSize = 50;
-  endMessage.textColor = 'blue';
+  endMessage.textColor = 'red';
   endMessage.visible = false;
 
   winPair = new Group();
