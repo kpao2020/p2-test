@@ -18,7 +18,8 @@ let cardSize; // Card size based on level and screen size
 let space; // Spacer between cards
 let level; // Level grid
 let gameTime, startTime, levelTime, lTime, winTime; // Timing variables
-let startBtn, levelBtn; // Start button
+let startBtn, levelBtn; // Start, level buttons
+let l1Btn, l2Btn, l3Btn, l4Btn, l5Btn; 
 let gameStart; // Game start state = true or false
 let score, tScore; // Keep track of score
 let cardRemain; // Keep track of remaining cards
@@ -27,7 +28,7 @@ let endMessage; // Display end game message
 let allowFlip; // Flip control state
 let carrots, carrotImages=[]; // Start page animation
 let bunny, winImage, loseImage; // Win/Lose page image
-let sounds, soundBtn, isMute, soundOnImg, soundOffImg; // Sound variables
+let sounds, soundBtn, isMute, soundOnImg, soundOffImg, soundHoverOnImg, soundHoverOffImg; // Sound variables
 let bg; // Background image
 let dp, isBonus; // Double Point Bonus state and check
 let bonusFlip, bonusOpen=[]; // Bonus Open Cards count and array
@@ -98,8 +99,10 @@ function preload() {
   backImage = loadImage('image/bunnyBack.png');
   winImage = loadImage('image/win.png');
   loseImage = loadImage('image/lose.png');
-  bg = loadImage('image/bgTitle.jpg');
+  bg = loadImage('image/bgTitle.png');
   soundOnImg = loadImage('image/soundOn50.png');
+  soundHoverOnImg = loadImage('image/soundHoverOn50.png');
+  soundHoverOffImg = loadImage('image/soundHoverOff50.png');
   soundOffImg = loadImage('image/soundOff50.png');
 
   sounds = [
@@ -127,7 +130,8 @@ function setup() {
   level = {
     l: 1,
     row: 4,
-    col: 5
+    col: 5,
+    textH: 25
   };
   space = 20;
 
@@ -174,7 +178,7 @@ function setup() {
 
   // Sound button will be positioned below Start button initially
   // but will move to top bar section once game starts
-  soundBtn = new Sprite(width*0.7, height*0.04, 50, 50, 's'); 
+  soundBtn = new Sprite(width*0.7, level.textH, 50, 50, 's'); 
   isMute = false;
 
   gameStart = false;
@@ -197,6 +201,80 @@ function setup() {
   winPair.textColor = 'lime';
   winPair.visible = false;
   winPair.life = 60;
+
+  // levelSelectBtns = new Group();
+  // levelSelectBtns.textSize = 28;
+  // // levelSelectBtns.color = 'lime';
+  // levelSelectBtns.w = 100;
+  // levelSelectBtns.h = 50;
+  // levelSelectBtns.collider = 's';
+  // levelSelectBtns.x = width * 0.5;
+  // levelSelectBtns.y = (i) => height*0.1*i + height*0.5;
+  // levelSelectBtns.text = (i) => 'Level '+(i+1);
+  // levelSelectBtns.level = (i) => i+1;
+  // // levelSelectBtns.amount = 5;
+  // levelSelectBtns.visible = false;
+
+
+  l1Btn = new Sprite();
+  l2Btn = new Sprite();
+  l3Btn = new Sprite();
+  l4Btn = new Sprite();
+  l5Btn = new Sprite();
+
+  l1Btn.textSize = 28;
+  l2Btn.textSize = 28;
+  l3Btn.textSize = 28;
+  l4Btn.textSize = 28;
+  l5Btn.textSize = 28;
+
+  l1Btn.color = 'lime';
+  l2Btn.color = 'lime';
+  l3Btn.color = 'lime';
+  l4Btn.color = 'lime';
+  l5Btn.color = 'lime';
+
+  l1Btn.visible = false;
+  l2Btn.visible = false;
+  l3Btn.visible = false;
+  l4Btn.visible = false;
+  l5Btn.visible = false;
+
+  l1Btn.w = 100;
+  l2Btn.w = 100;
+  l3Btn.w = 100;
+  l4Btn.w = 100;
+  l5Btn.w = 100;
+
+  l1Btn.h = 50;
+  l2Btn.h = 50;
+  l3Btn.h = 50;
+  l4Btn.h = 50;
+  l5Btn.h = 50;
+
+  l1Btn.collider = 's';
+  l2Btn.collider = 's';
+  l3Btn.collider = 's';
+  l4Btn.collider = 's';
+  l5Btn.collider = 's';
+
+  l1Btn.x = width*0.5;
+  l2Btn.x = width*0.5;
+  l3Btn.x = width*0.5;
+  l4Btn.x = width*0.5;
+  l5Btn.x = width*0.5;
+
+  l1Btn.y = height*0.5;
+  l2Btn.y = height*0.6;
+  l3Btn.y = height*0.7;
+  l4Btn.y = height*0.8;
+  l5Btn.y = height*0.9;
+
+  l1Btn.text = 'Level 1';
+  l2Btn.text = 'Level 2';
+  l3Btn.text = 'Level 3';
+  l4Btn.text = 'Level 4';
+  l5Btn.text = 'Level 5';
 }
 
 // Draw function calls following functions
@@ -235,8 +313,116 @@ function draw() {
     carrots.visible = false;
     startBtn.visible = false;
     startBtn.collider = 'n';
-    createLevel(level);
-    startTime = millis();
+    l1Btn.visible = true;
+    l2Btn.visible = true;
+    l3Btn.visible = true;
+    l4Btn.visible = true;
+    l5Btn.visible = true;
+  }
+
+  if ((l1Btn.visible)||(l2Btn.visible)||(l3Btn.visible)||(l4Btn.visible)||(l5Btn.visible)){
+    endMessage.text = 'Select a level';
+    if (l1Btn.mouse.hovering()){
+      l1Btn.color = 'yellow';
+    } else {
+      l1Btn.color = 'lime';
+    }
+    if (l2Btn.mouse.hovering()){
+      l2Btn.color = 'yellow';
+    } else {
+      l2Btn.color = 'lime';
+    }
+    if (l3Btn.mouse.hovering()){
+      l3Btn.color = 'yellow';
+    } else {
+      l3Btn.color = 'lime';
+    }
+    if (l4Btn.mouse.hovering()){
+      l4Btn.color = 'yellow';
+    } else {
+      l4Btn.color = 'lime';
+    }
+    if (l5Btn.mouse.hovering()){
+      l5Btn.color = 'yellow';
+    } else {
+      l5Btn.color = 'lime';
+    }
+
+    if (l1Btn.mouse.presses()){
+      level.l = 1;
+      l1Btn.visible = false;
+      l2Btn.visible = false;
+      l3Btn.visible = false;
+      l4Btn.visible = false;
+      l5Btn.visible = false;
+      l1Btn.collider = 'n';
+      l2Btn.collider = 'n';
+      l3Btn.collider = 'n';
+      l4Btn.collider = 'n';
+      l5Btn.collider = 'n';
+      createLevel(level);
+      startTime = millis();
+    } 
+    if (l2Btn.mouse.presses()){
+      level.l = 2;
+      l1Btn.visible = false;
+      l2Btn.visible = false;
+      l3Btn.visible = false;
+      l4Btn.visible = false;
+      l5Btn.visible = false;
+      l1Btn.collider = 'n';
+      l2Btn.collider = 'n';
+      l3Btn.collider = 'n';
+      l4Btn.collider = 'n';
+      l5Btn.collider = 'n';
+      createLevel(level);
+      startTime = millis();
+    } 
+    if (l3Btn.mouse.presses()){
+      level.l = 3;
+      l1Btn.visible = false;
+      l2Btn.visible = false;
+      l3Btn.visible = false;
+      l4Btn.visible = false;
+      l5Btn.visible = false;
+      l1Btn.collider = 'n';
+      l2Btn.collider = 'n';
+      l3Btn.collider = 'n';
+      l4Btn.collider = 'n';
+      l5Btn.collider = 'n';
+      createLevel(level);
+      startTime = millis();
+    } 
+    if (l4Btn.mouse.presses()){
+      level.l = 4;
+      l1Btn.visible = false;
+      l2Btn.visible = false;
+      l3Btn.visible = false;
+      l4Btn.visible = false;
+      l5Btn.visible = false;
+      l1Btn.collider = 'n';
+      l2Btn.collider = 'n';
+      l3Btn.collider = 'n';
+      l4Btn.collider = 'n';
+      l5Btn.collider = 'n';
+      createLevel(level);
+      startTime = millis();
+    } 
+    if (l5Btn.mouse.presses()){
+      level.l = 5;
+      l1Btn.visible = false;
+      l2Btn.visible = false;
+      l3Btn.visible = false;
+      l4Btn.visible = false;
+      l5Btn.visible = false;
+      l1Btn.collider = 'n';
+      l2Btn.collider = 'n';
+      l3Btn.collider = 'n';
+      l4Btn.collider = 'n';
+      l5Btn.collider = 'n';
+      createLevel(level);
+      startTime = millis();
+    } 
   }
 
   ///// Next Level /////
@@ -423,12 +609,12 @@ function topBar(){
   
   ///// Start game time when click Start /////
   if (gameStart){
-    text('Score: '+score.toString(),width*0.5,height*0.05);
+    text('Score: '+score.toString(),width*0.5,level.textH);
 
     ///// prevent time to run over 0 /////
     if (gameTime > 0) {
-      text('Cards: '+cardRemain.toString(), width*0.15, height*0.05);
-      text('Time : '+gameTime.toString(), width*0.85, height*0.05);
+      text('Cards: '+cardRemain.toString(), width*0.15, level.textH);
+      text('Time : '+gameTime.toString(), width*0.85, level.textH);
 
       // check winning condition
       if (cardRemain == 0){
@@ -440,7 +626,7 @@ function topBar(){
     }
     ///// stop game when time reaches 0 /////
     else {
-      text('Time : 0', width*0.85, height*0.05);
+      text('Time : 0', width*0.85, level.textH);
       gameStart = false;
 
       // check losing condition
@@ -457,7 +643,7 @@ function topBar(){
       endMessage.visible = true;
       fill('blue');
       textAlign(LEFT);
-      textSize(30);
+      textSize(20);
       text('ART 259 Project 2\
         \nBy: Ken Pao & Yuying Huang', width*0.05, height*0.3);
       text(
@@ -479,22 +665,23 @@ function topBar(){
   }
 
   // Mute control
-  // if (soundBtn.mouse.hovering()){
-  //   soundBtn.color = 'yellow';
-  //   cursor(HAND);
-  // } else {
-  //   soundBtn.color = 'lime';
-  //   cursor(ARROW);
-  // }
-
   if (soundBtn.mouse.presses()) {
     isMute = !isMute;
     console.log('isMute',isMute);
   }
+
   if (isMute){
-    soundBtn.img = soundOffImg;
+    if (soundBtn.mouse.hovering()){
+      soundBtn.img = soundHoverOffImg;
+    } else {
+      soundBtn.img = soundOffImg;
+    }
   } else {
-    soundBtn.img = soundOnImg;
+    if (soundBtn.mouse.hovering()){
+      soundBtn.img = soundHoverOnImg;
+    } else {
+      soundBtn.img = soundOnImg;
+    }
   }
 }
 
@@ -508,22 +695,27 @@ function createLevel(level){
   if (level.l == 1){
     level.row = 4;
     level.col = 5;
+    level.textH = 25;
     levelTime = 60;
   } else if (level.l == 2){
     level.row = 5;
     level.col = 8;
+    level.textH = 25;
     levelTime = 180;
   } else if (level.l == 3){
     level.row = 6;
     level.col = 10;
+    level.textH = 25;
     levelTime = 250;
   } else if (level.l == 4){
     level.row = 8;
     level.col = 10;
+    level.textH = 25;
     levelTime = 300;
   } else if (level.l == 5){
     level.row = 10;
     level.col = 10;
+    level.textH = 25;
     levelTime = 310;
   }
 
